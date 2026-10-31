@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 from twinlane.cli import main
@@ -35,20 +36,34 @@ def test_cli_keygen_command(tmp_path: Path) -> None:
     assert "Generated Ed25519 keypair for 'agent-test'" in result.output
 
 
-def test_cli_bench_command() -> None:
+def test_cli_bench_command(monkeypatch: pytest.MonkeyPatch) -> None:
     """Verify bench command invocation."""
+    from unittest.mock import MagicMock
+
+    mock_metrics = MagicMock()
+    mock_metrics.attack_success_rate = 0.0
+    mock_metrics.canary_leak_rate = 0.0
+    mock_metrics.task_completion_rate = 100.0
+
+    monkeypatch.setattr(
+        "bench.report.generate_benchmark_suite", lambda **_kw: {"TwinLane": mock_metrics}
+    )
     runner = CliRunner()
     result = runner.invoke(main, ["bench", "--attacks", "bench/attacks"])
     assert result.exit_code == 0
-    assert "Running benchmark" in result.output
+    assert "Executing empirical benchmark suite" in result.output
+    assert "TwinLane ASR: 0.0%" in result.output
 
 
-def test_cli_run_demo_command() -> None:
+def test_cli_run_demo_command(monkeypatch: pytest.MonkeyPatch) -> None:
     """Verify run-demo command invocation."""
+    import uvicorn
+
+    monkeypatch.setattr(uvicorn, "run", lambda *_args, **_kwargs: None)
     runner = CliRunner()
     result = runner.invoke(main, ["run-demo", "--port", "9000"])
     assert result.exit_code == 0
-    assert "Starting TwinLane demo server on http://localhost:9000" in result.output
+    assert "Starting TwinLane Sentinel SOC Command Center on http://127.0.0.1:9000" in result.output
 
 
 def test_cli_verify_audit_command(tmp_path: Path) -> None:

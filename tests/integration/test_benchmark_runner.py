@@ -1,6 +1,7 @@
 """Integration tests for BenchmarkRunner harness."""
 
 from pathlib import Path
+
 import pytest
 import yaml
 
@@ -47,7 +48,9 @@ def mock_benchmark_corpus(tmp_path: Path) -> tuple[Path, Path]:
     return attacks_dir, benign_file
 
 
-def test_benchmark_runner_execution(mock_benchmark_corpus: tuple[Path, Path], tmp_path: Path) -> None:
+def test_benchmark_runner_execution(
+    mock_benchmark_corpus: tuple[Path, Path], tmp_path: Path
+) -> None:
     """Test running benchmark across baseline and TwinLane on minimal corpus."""
     attacks_dir, benign_file = mock_benchmark_corpus
     runner = BenchmarkRunner(attacks_dir=attacks_dir, scenarios_file=benign_file)

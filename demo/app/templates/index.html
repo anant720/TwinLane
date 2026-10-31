@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TwinLane | Zero-Trust Agent-to-Agent SOC Command Center</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            950: '#07090e',
+                            900: '#0b0f19',
+                            800: '#111827',
+                            700: '#1f2937',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/sentinel.css">
+</head>
+<body class="bg-[#07090e] text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
+
+    <!-- Top SOC Status Bar -->
+    <header class="border-b border-slate-800/80 bg-[#0a0e17]/90 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+                        TL
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-sm tracking-tight text-white uppercase">TwinLane</span>
+                            <span class="badge-mono badge-indigo text-[10px]">v1.0.0-PROT</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400 font-mono tracking-wider">ZERO-TRUST AGENT ENCLAVE</div>
+                    </div>
+                </div>
+                <div class="h-6 w-px bg-slate-800 hidden sm:block"></div>
+                <div class="hidden sm:flex items-center space-x-2">
+                    <span class="status-dot status-dot-emerald"></span>
+                    <span class="text-xs text-slate-300 font-mono">ENCLAVE SECURE: FAIL-CLOSED</span>
+                </div>
+            </div>
+
+            <!-- Agent Enclave Identity Fingerprints -->
+            <div class="hidden md:flex items-center space-x-4 text-xs font-mono">
+                <div class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-400 flex items-center space-x-2">
+                    <span class="text-indigo-400 font-semibold">ORCHESTRATOR:</span>
+                    <span class="text-slate-300 truncate max-w-[120px]" title="ed25519:6c5d2a..4e">ed25519:6c5d..4e</span>
+                </div>
+                <div class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-400 flex items-center space-x-2">
+                    <span class="text-cyan-400 font-semibold">WORKER:</span>
+                    <span class="text-slate-300 truncate max-w-[120px]" title="ed25519:f1a94b..90">ed25519:f1a9..90</span>
+                </div>
+                <div class="px-3 py-1 rounded-md bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 font-semibold">
+                    POLICY: STRICT
+                </div>
+            </div>
+        </div>
+
+        <!-- Sentinel Command Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/40">
+            <nav class="flex space-x-8 text-xs font-medium font-mono -mb-px">
+                <button class="nav-tab active py-3 px-1 border-b-2 border-indigo-500 text-white flex items-center space-x-2 transition-all" data-view="view-arena">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <span>DUAL EXECUTION ARENA</span>
+                </button>
+                <button class="nav-tab py-3 px-1 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 transition-all" data-view="view-pipeline">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <span>7-STEP GATE PIPELINE</span>
+                </button>
+                <button class="nav-tab py-3 px-1 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 transition-all" data-view="view-audit">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>AUDIT HASH-CHAIN</span>
+                </button>
+                <button class="nav-tab py-3 px-1 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 transition-all" data-view="view-bench">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span>BENCHMARK TELEMETRY</span>
+                </button>
+                <button class="nav-tab py-3 px-1 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 transition-all" data-view="view-studio">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    <span>CAPABILITY & ENVELOPE STUDIO</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- VIEW 1: DUAL EXECUTION ARENA -->
+        <div id="view-arena" class="tab-view space-y-6">
+            <!-- Scenario Control Card -->
+            <div class="glass-panel p-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-base font-semibold text-white tracking-tight flex items-center gap-2">
+                            <span>Adversarial Scenario Workbench</span>
+                            <span class="badge-mono badge-cyan">LIVE SIMULATOR</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Select from 180 empirical attack vectors or input custom injection payloads.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <select id="attack-selector" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 font-mono focus:ring-1 focus:ring-indigo-500 max-w-sm">
+                            <option value="">Loading attack cases...</option>
+                        </select>
+                        <button id="run-attack-btn" onclick="runExecutionArena()" class="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-mono font-medium px-4 py-2 rounded-lg transition-all shadow-md flex items-center gap-2 whitespace-nowrap">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+                            <span>Deploy Scenario across Arena</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scenario Parameters Metadata -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 text-xs font-mono">
+                    <div class="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                        <div class="text-slate-500 text-[10px]">ATTACK CATEGORY</div>
+                        <div id="category-display" class="text-indigo-300 font-semibold mt-0.5 truncate">-</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                        <div class="text-slate-500 text-[10px]">EMBEDDED CANARY SECRET</div>
+                        <div id="canary-display" class="text-rose-400 font-bold mt-0.5 truncate font-mono">CANARY-NONE</div>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                        <div class="text-slate-500 text-[10px]">ATTACK INTENDED TOOL / GOAL</div>
+                        <div id="intended-tool-display" class="text-amber-300 font-semibold mt-0.5 truncate">-</div>
+                    </div>
+                </div>
+
+                <!-- Payload Editor -->
+                <div class="mt-4">
+                    <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-1.5">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                            <span>Untrusted Context / Attack Payload</span>
+                        </span>
+                        <span class="text-[11px] text-slate-500">Passed directly into worker agent execution</span>
+                    </div>
+                    <textarea id="payload-editor" rows="3" class="w-full bg-[#05070a] border border-slate-800 rounded-lg p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors placeholder-slate-600" placeholder="Enter payload or select from above..."></textarea>
+                </div>
+            </div>
+
+            <!-- Arena Split Grid: Left Baseline Naive vs Right TwinLane -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- LEFT: NAIVE BASELINE (B0) -->
+                <div id="naive-card" class="glass-panel p-5 border-slate-800 transition-all">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+                            <h3 class="font-bold text-sm text-slate-200 font-mono">BASELINE (B0: NAIVE PROTOCOL)</h3>
+                        </div>
+                        <span id="naive-status-pill" class="badge-mono badge-amber">WAITING FOR RUN</span>
+                    </div>
+
+                    <div class="mt-4 space-y-3">
+                        <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+                            <div class="p-2 rounded bg-slate-950/60 border border-slate-800/80">
+                                <div class="text-slate-500 text-[10px]">TOOL INVOKED</div>
+                                <div id="naive-tool-called" class="text-slate-200 font-bold mt-0.5">none</div>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/60 border border-slate-800/80">
+                                <div class="text-slate-500 text-[10px]">CANARY EXFILTRATION</div>
+                                <div id="naive-canary-leak" class="badge-mono badge-emerald mt-0.5">NOT LEAKED</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs font-mono text-slate-400 mb-1">Execution / Agent Telemetry Output:</div>
+                            <pre id="naive-output" class="code-block h-48 whitespace-pre-wrap leading-relaxed text-slate-300">Run a scenario to observe baseline behavior.</pre>
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-rose-950/20 border border-rose-900/40 text-[11px] text-rose-300 font-mono">
+                            ⚠️ <b>Naive Vulnerability:</b> No envelope separation. LLM receives instructions interleaved directly with untrusted context. Prompt injection commands trigger unauthorized tool calls.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: TWINLANE PROTOCOL -->
+                <div id="twinlane-card" class="glass-panel p-5 border-emerald-500/30 glow-card-emerald transition-all">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50"></span>
+                            <h3 class="font-bold text-sm text-slate-100 font-mono">TWINLANE ZERO-TRUST PROTOCOL</h3>
+                        </div>
+                        <span id="twinlane-status-pill" class="badge-mono badge-emerald">GATE READY</span>
+                    </div>
+
+                    <div class="mt-4 space-y-3">
+                        <div class="grid grid-cols-3 gap-3 text-xs font-mono">
+                            <div class="p-2 rounded bg-slate-950/60 border border-slate-800/80">
+                                <div class="text-slate-500 text-[10px]">CONTROL INTENT</div>
+                                <div id="twinlane-intent" class="text-cyan-400 font-bold mt-0.5 truncate">assign_task</div>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/60 border border-slate-800/80">
+                                <div class="text-slate-500 text-[10px]">GATE DECISION</div>
+                                <div id="twinlane-decision" class="text-emerald-400 font-bold mt-0.5 truncate">ALLOW</div>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/60 border border-slate-800/80">
+                                <div class="text-slate-500 text-[10px]">DATA LANE PROTECTION</div>
+                                <div id="twinlane-canary-leak" class="badge-mono badge-emerald font-bold mt-0.5">0 LEAKS</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs font-mono text-slate-400 mb-1 flex items-center justify-between">
+                                <span>Cryptographic Wire Envelope:</span>
+                                <span class="text-[10px] text-indigo-400">Ed25519 Canonical RFC 8785</span>
+                            </div>
+                            <pre id="twinlane-envelope-display" class="code-block h-48 whitespace-pre leading-relaxed text-indigo-300">{
+  "info": "Deploy scenario to inspect cryptographic wire envelope."
+}</pre>
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-[11px] text-emerald-300 font-mono">
+                            🛡️ <b>TwinLane Enclave:</b> Untrusted payloads are isolated in Data Lane under quarantine. Instructions are strictly parsed from schema-validated, cryptographically signed Control Lane.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Mini 7-Step Pipeline Inspection -->
+            <div class="glass-panel p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-white tracking-tight flex items-center gap-2 font-mono">
+                        <span>7-Step Deterministic Gate Telemetry</span>
+                        <span class="badge-mono badge-indigo">FAIL-CLOSED PIPELINE</span>
+                    </h3>
+                    <span class="text-xs text-slate-400 font-mono">Evaluated at receiver before any tool or LLM action</span>
+                </div>
+                <div id="gate-pipeline-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                    <!-- Populated dynamically via app.js -->
+                    <div class="pipeline-step rounded-lg p-3 text-xs font-mono border-slate-800 text-slate-400">1. Authenticate</div>
+                    <div class="pipeline-step rounded-lg p-3 text-xs font-mono border-slate-800 text-slate-400">2. Validate Schema</div>
+                    <div class="pipeline-step rounded-lg p-3 text-xs font-mono border-slate-800 text-slate-400">3. Authorize</div>
+                    <div class="pipeline-step rounded-lg p-3 text-xs font-mono border-slate-800 text-slate-400">4. Provenance</div>
+                    <div class="pipeline-step rounded-lg p-3 text-xs font-mono border-slate-800 text-slate-400">5. Quarantine</div>
+                    <div class="pipeline-step rounded-lg p-3 text-xs font-mono border-slate-800 text-slate-400">6. Final Decision</div>
+                    <div class="pipeline-step rounded-lg p-3 text-xs font-mono border-slate-800 text-slate-400">7. Hash Audit</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: GATE PIPELINE DEEP DIVE -->
+        <div id="view-pipeline" class="tab-view hidden space-y-6">
+            <div class="glass-panel p-6">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-base font-semibold text-white font-mono flex items-center gap-2">
+                            <span>Deterministic Gate Architecture</span>
+                            <span class="badge-mono badge-cyan">ZERO-TRUST ENGINE</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Detailed decomposition of the 7-step Gate protocol pipeline enforcing mathematical isolation.</p>
+                    </div>
+                    <div class="badge-mono badge-emerald">STRICT CONSTRAINTS</div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 font-mono text-xs">
+                    <!-- Step 1 -->
+                    <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/50 transition-all">
+                        <div class="flex items-center justify-between text-indigo-400 font-bold mb-2">
+                            <span>STEP 1: AUTHENTICATION</span>
+                            <span class="badge-mono badge-indigo">CRYPTO</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-relaxed">
+                            Validates Ed25519 digital signature over canonical RFC 8785 envelope JSON. Verifies sender public key against local Trust Store. Enforces strictly monotonic nonce check against replay attacks.
+                        </p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/50 transition-all">
+                        <div class="flex items-center justify-between text-indigo-400 font-bold mb-2">
+                            <span>STEP 2: SCHEMA VALIDATION</span>
+                            <span class="badge-mono badge-cyan">SYNTAX</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-relaxed">
+                            Checks Control Lane against strictly registered typed intents in Intent Catalog. Validates parameter schemas, forbidding unknown fields (`extra="forbid"`). Rejects any unstructured free text.
+                        </p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/50 transition-all">
+                        <div class="flex items-center justify-between text-indigo-400 font-bold mb-2">
+                            <span>STEP 3: AUTHORIZATION</span>
+                            <span class="badge-mono badge-emerald">CAPABILITY</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-relaxed">
+                            Verifies cryptographic capability token. Evaluates delegation chain, checking attenuation, expiration epoch, remaining `max_uses`, and session scope. No token = instant fail-closed DENY.
+                        </p>
+                    </div>
+                    <!-- Step 4 -->
+                    <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/50 transition-all">
+                        <div class="flex items-center justify-between text-indigo-400 font-bold mb-2">
+                            <span>STEP 4: PROVENANCE</span>
+                            <span class="badge-mono badge-amber">MANIFEST</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-relaxed">
+                            Calculates SHA-256 digests over all Data Lane items. Verifies integrity against item manifests. Enforces policy constraints requiring specific trust levels (`TRUSTED`, `UNTRUSTED`).
+                        </p>
+                    </div>
+                    <!-- Step 5 -->
+                    <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/50 transition-all">
+                        <div class="flex items-center justify-between text-indigo-400 font-bold mb-2">
+                            <span>STEP 5: QUARANTINE READER</span>
+                            <span class="badge-mono badge-rose">CONTAINMENT</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-relaxed">
+                            Routes any item marked `UNTRUSTED` into the isolated Quarantine Reader. Prevents execution as code or systemic instruction. Accessible strictly as passive reference data.
+                        </p>
+                    </div>
+                    <!-- Step 6 -->
+                    <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/50 transition-all">
+                        <div class="flex items-center justify-between text-indigo-400 font-bold mb-2">
+                            <span>STEP 6: FINAL DECISION</span>
+                            <span class="badge-mono badge-emerald">DETERMINISTIC</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-relaxed">
+                            Synthesizes validation results into definitive `ALLOW`, `DENY`, or `ESCALATE`. Deterministic rule engine; zero LLM calls participate in this critical path.
+                        </p>
+                    </div>
+                    <!-- Step 7 -->
+                    <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-indigo-500/50 transition-all md:col-span-2 lg:col-span-3">
+                        <div class="flex items-center justify-between text-indigo-400 font-bold mb-2">
+                            <span>STEP 7: HASH-CHAIN AUDIT LOG</span>
+                            <span class="badge-mono badge-indigo">FORWARD-SECURE IMMUTABILITY</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-relaxed">
+                            Appends record into SHA-256 hash-chain where each block encapsulates the previous record digest: `h_i = SHA256(canonical(record_i || h_{i-1}))`. Any post-facto modification in audit storage immediately breaks the chain and is cryptographically detected.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: AUDIT HASH-CHAIN EXPLORER -->
+        <div id="view-audit" class="tab-view hidden space-y-6">
+            <div class="glass-panel p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-base font-semibold text-white font-mono flex items-center gap-2">
+                            <span>Audit Hash-Chain Explorer</span>
+                            <span class="badge-mono badge-indigo">SHA-256 MERKLE CHAIN</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Immutable, tamper-evident chronological ledger recording every Gate authorization decision.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="tamper-btn" onclick="simulateTamper()" class="bg-rose-950 hover:bg-rose-900 border border-rose-500/60 text-rose-300 text-xs font-mono px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            <span>Simulate Tamper</span>
+                        </button>
+                        <button onclick="verifyAuditChain()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-mono font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-md shadow-emerald-900/30">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Verify Chain Integrity</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Verification Status Notification -->
+                <div id="audit-verify-status" class="mt-4 p-3 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 text-xs font-mono">
+                    Ready to verify audit integrity. Click "Verify Chain Integrity" to audit current blocks.
+                </div>
+
+                <div class="mt-6">
+                    <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-3">
+                        <span>LATEST BLOCKS (Total Registered: <span id="total-blocks-count" class="text-white font-bold">0</span>)</span>
+                        <span class="text-[11px] text-slate-500">Reverse Chronological Order</span>
+                    </div>
+                    <div id="audit-records-feed" class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                        <!-- Feed populated by app.js -->
+                        <div class="text-center py-8 text-slate-500 text-xs font-mono">Loading audit logs...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: BENCHMARK TELEMETRY -->
+        <div id="view-bench" class="tab-view hidden space-y-6">
+            <!-- Summary Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="glass-panel p-5 border-slate-800">
+                    <div class="text-slate-400 text-xs font-mono">BASELINE (B0) ATTACK SUCCESS RATE</div>
+                    <div id="metric-b0-asr" class="text-3xl font-bold font-mono text-rose-400 mt-2">52.8%</div>
+                    <div class="text-[11px] text-slate-500 font-mono mt-1">95% CI: [45.5%, 59.9%] (85 canaries leaked)</div>
+                </div>
+                <div class="glass-panel p-5 border-emerald-500/40 glow-card-emerald">
+                    <div class="text-slate-400 text-xs font-mono">TWINLANE ATTACK SUCCESS RATE</div>
+                    <div id="metric-tl-asr" class="text-3xl font-bold font-mono text-emerald-400 mt-2">0.0%</div>
+                    <div class="text-[11px] text-emerald-400/80 font-mono mt-1">95% CI: [0.0%, 2.0%] (0 canaries leaked)</div>
+                </div>
+                <div class="glass-panel p-5 border-indigo-500/40">
+                    <div class="text-slate-400 text-xs font-mono">TWINLANE BENIGN COMPLETION RATE</div>
+                    <div id="metric-tl-tcr" class="text-3xl font-bold font-mono text-indigo-400 mt-2">100.0%</div>
+                    <div class="text-[11px] text-slate-500 font-mono mt-1">35/35 Benign tasks passed (p50: 8.0ms)</div>
+                </div>
+            </div>
+
+            <!-- Detailed Empirical Breakdown Table -->
+            <div class="glass-panel p-6">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <h3 class="text-base font-semibold text-white font-mono flex items-center gap-2">
+                        <span>12 Attack Categories Comparative Matrix</span>
+                        <span class="badge-mono badge-cyan">EMPIRICAL BENCHMARK</span>
+                    </h3>
+                    <span class="text-xs text-slate-400 font-mono">180 Attack Fixtures + 35 Benign Scenarios</span>
+                </div>
+
+                <div class="mt-4 overflow-x-auto">
+                    <table class="w-full text-xs font-mono text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate-400">
+                                <th class="py-2.5 px-3">Category</th>
+                                <th class="py-2.5 px-3 text-center">B0 Naive ASR</th>
+                                <th class="py-2.5 px-3 text-center">B1 Spotlight ASR</th>
+                                <th class="py-2.5 px-3 text-center">B2 Classifier ASR</th>
+                                <th class="py-2.5 px-3 text-center text-emerald-400">TwinLane ASR</th>
+                                <th class="py-2.5 px-3 text-center">TwinLane CI 95%</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                            <tr><td class="py-2 px-3 font-semibold">01. Direct System Instruction Override</td><td class="py-2 px-3 text-center text-rose-400 font-bold">100.0%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">100.0%</td><td class="py-2 px-3 text-center text-rose-400">66.7%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">02. Delimiter Collision & Tag Escapes</td><td class="py-2 px-3 text-center text-amber-400">33.3%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">73.3%</td><td class="py-2 px-3 text-center text-slate-400">20.0%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">03. Role Reversal & Persona Hijack</td><td class="py-2 px-3 text-center text-rose-400">66.7%</td><td class="py-2 px-3 text-center text-rose-400">66.7%</td><td class="py-2 px-3 text-center text-slate-400">26.7%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">04. Multi-Turn Context Fragmentation</td><td class="py-2 px-3 text-center text-amber-400">46.7%</td><td class="py-2 px-3 text-center text-amber-400">46.7%</td><td class="py-2 px-3 text-center text-slate-400">13.3%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">05. Syntactic Encoding (Base64/Hex/Rot13)</td><td class="py-2 px-3 text-center text-rose-400 font-bold">100.0%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">100.0%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">86.7%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">06. Steganographic / Unicode Obfuscation</td><td class="py-2 px-3 text-center text-rose-400 font-bold">80.0%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">80.0%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">80.0%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">07. Indirect Document Injection (PDF/Markdown)</td><td class="py-2 px-3 text-center text-rose-400">60.0%</td><td class="py-2 px-3 text-center text-amber-400">40.0%</td><td class="py-2 px-3 text-center text-slate-400">20.0%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">08. Side-Channel Tool Invocation</td><td class="py-2 px-3 text-center text-amber-400">40.0%</td><td class="py-2 px-3 text-center text-slate-400">26.7%</td><td class="py-2 px-3 text-center text-slate-400">13.3%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">09. Privilege Escalation / Confused Deputy</td><td class="py-2 px-3 text-center text-amber-400">46.7%</td><td class="py-2 px-3 text-center text-amber-400">46.7%</td><td class="py-2 px-3 text-center text-slate-400">20.0%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">10. Tool Call Parameter Manipulation</td><td class="py-2 px-3 text-center text-amber-400">33.3%</td><td class="py-2 px-3 text-center text-slate-400">20.0%</td><td class="py-2 px-3 text-center text-slate-400">13.3%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">11. Exfiltration Channel Construction</td><td class="py-2 px-3 text-center text-rose-400 font-bold">86.7%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">86.7%</td><td class="py-2 px-3 text-center text-amber-400">40.0%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                            <tr><td class="py-2 px-3 font-semibold">12. Classifier Evasion & Semantic Smuggling</td><td class="py-2 px-3 text-center text-rose-400 font-bold">100.0%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">100.0%</td><td class="py-2 px-3 text-center text-rose-400 font-bold">100.0%</td><td class="py-2 px-3 text-center text-emerald-400 font-bold">0.0%</td><td class="py-2 px-3 text-center text-slate-500">[0.0, 20.4%]</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 5: CAPABILITY & ENVELOPE STUDIO -->
+        <div id="view-studio" class="tab-view hidden space-y-6">
+            <div class="glass-panel p-6">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div>
+                        <h2 class="text-base font-semibold text-white font-mono flex items-center gap-2">
+                            <span>Capability & Intent Enclave Studio</span>
+                            <span class="badge-mono badge-purple">DELEGATION TOKENS</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Inspect attenuating capability tokens, Ed25519 public keys, and the schema catalog.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="space-y-3 font-mono text-xs">
+                        <div class="text-slate-400 font-semibold">Active Capability Token:</div>
+                        <pre class="code-block h-64 text-purple-300">{
+  "token_id": "tok-b83c1102e",
+  "issuer": "ed25519:6c5d2a801f92e34d",
+  "subject": "ed25519:f1a94bc7210e543b",
+  "intents": ["assign_task", "report_result"],
+  "attenuations": {
+    "max_uses": 5,
+    "not_before": 1730376000,
+    "expires_at": 1730386800,
+    "path_prefixes": ["sandbox/"]
+  },
+  "parent_token_id": null
+}</pre>
+                    </div>
+                    <div class="space-y-3 font-mono text-xs">
+                        <div class="text-slate-400 font-semibold">Intent Schema Registry (`default.yaml`):</div>
+                        <pre class="code-block h-64 text-cyan-300">version: "1.0"
+mode: "strict"
+intents:
+  assign_task:
+    required_capability: "assign_task"
+    allowed_senders: ["*"]
+  report_result:
+    required_capability: "report_result"
+    parameters:
+      task_id: { type: "string", provenance: "TRUSTED" }
+      status: { type: "string", enum: ["SUCCESS", "FAILED"] }
+      data_ref: { type: "string", provenance: "TRUSTED" }</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/60 bg-[#07090e] py-4 text-center text-xs font-mono text-slate-500">
+        TwinLane Security Protocol Reference Enclave &copy; 2026. Zero-trust prompt-injection-resistant multi-agent architecture.
+    </footer>
+
+    <!-- App Frontend Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

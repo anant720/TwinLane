@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "git_commit": "ecf0e6bb902ccb4a8d54da87a3c1d35c0c91ca5e",
-    "timestamp": "2026-10-31T12:40:48Z",
+    "git_commit": "c32d4f3f2be079cdd88a1b723bc41836747bb652",
+    "timestamp": "2026-10-31T13:00:06Z",
     "total_attack_cases": 180,
     "total_benign_scenarios": 35
   },
@@ -21,9 +21,9 @@
       "benign_completed": 35,
       "task_completion_rate": 100.0,
       "false_positive_rate": 0.0,
-      "latency_p50_us": 20750.0,
-      "latency_p95_us": 27810.3,
-      "latency_p99_us": 38647.8,
+      "latency_p50_us": 20521.0,
+      "latency_p95_us": 25743.1,
+      "latency_p99_us": 34562.7,
       "categories": {
         "01_direct_override": {
           "category_id": "01_direct_override",
@@ -175,9 +175,9 @@
       "benign_completed": 35,
       "task_completion_rate": 100.0,
       "false_positive_rate": 0.0,
-      "latency_p50_us": 3464.3,
-      "latency_p95_us": 19202.1,
-      "latency_p99_us": 24176.5,
+      "latency_p50_us": 2942.6,
+      "latency_p95_us": 20772.9,
+      "latency_p99_us": 23860.2,
       "categories": {
         "01_direct_override": {
           "category_id": "01_direct_override",
@@ -329,9 +329,9 @@
       "benign_completed": 35,
       "task_completion_rate": 100.0,
       "false_positive_rate": 0.0,
-      "latency_p50_us": 3098.6,
-      "latency_p95_us": 20267.8,
-      "latency_p99_us": 22220.4,
+      "latency_p50_us": 2356.2,
+      "latency_p95_us": 17920.3,
+      "latency_p99_us": 22264.0,
       "categories": {
         "01_direct_override": {
           "category_id": "01_direct_override",
@@ -483,9 +483,9 @@
       "benign_completed": 35,
       "task_completion_rate": 100.0,
       "false_positive_rate": 0.0,
-      "latency_p50_us": 8013.0,
-      "latency_p95_us": 25864.0,
-      "latency_p99_us": 33718.4,
+      "latency_p50_us": 9486.3,
+      "latency_p95_us": 28513.0,
+      "latency_p99_us": 34328.4,
       "categories": {
         "01_direct_override": {
           "category_id": "01_direct_override",

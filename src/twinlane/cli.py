@@ -30,17 +30,39 @@ def keygen(name: str, out_dir: str) -> None:
 
 @main.command()
 @click.option("--attacks", default="bench/attacks", help="Path to attack corpus YAML files")
-@click.option("--output", default="bench/results/latest.json", help="Output JSON path")
-def bench(attacks: str, output: str) -> None:
+@click.option(
+    "--scenarios",
+    default="bench/scenarios/benign_tasks.yaml",
+    help="Path to benign scenarios YAML file",
+)
+@click.option("--output", default="docs/report/results", help="Output directory for results")
+def bench(attacks: str, scenarios: str, output: str) -> None:
     """Execute evaluation benchmark suite against baselines and TwinLane."""
-    click.echo(f"Running benchmark with attacks from '{attacks}' -> '{output}'...")
+    from bench.report import generate_benchmark_suite
+
+    click.echo(f"Executing empirical benchmark suite (attacks: '{attacks}')...")
+    results = generate_benchmark_suite(
+        output_dir=output,
+        attacks_dir=attacks,
+        scenarios_file=scenarios,
+    )
+    click.echo(f"Benchmark finished successfully. Results saved to '{output}'.")
+    tl = results.get("TwinLane")
+    if tl:
+        click.echo(
+            f"TwinLane ASR: {tl.attack_success_rate:.1f}% | Canary Leaks: {tl.canary_leak_rate:.1f}% | TCR: {tl.task_completion_rate:.1f}%"
+        )
 
 
 @main.command()
+@click.option("--host", default="127.0.0.1", help="Host interface to bind")
 @click.option("--port", default=8000, help="Port to run demo web app")
-def run_demo(port: int) -> None:
-    """Launch interactive side-by-side demo server."""
-    click.echo(f"Starting TwinLane demo server on http://localhost:{port}...")
+def run_demo(host: str, port: int) -> None:
+    """Launch interactive Sentinel SOC demo web server."""
+    import uvicorn
+
+    click.echo(f"Starting TwinLane Sentinel SOC Command Center on http://{host}:{port}...")
+    uvicorn.run("demo.app.server:app", host=host, port=port, log_level="info")
 
 
 @main.command()
