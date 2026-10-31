@@ -1,5 +1,7 @@
 """Unit tests for SHA-256 hash-chained audit ledger."""
 
+from pathlib import Path
+
 import pytest
 
 from twinlane.audit.chain import GENESIS_PREV_HASH, AuditChain
@@ -47,9 +49,6 @@ def test_audit_chain_tamper_detection() -> None:
 
     with pytest.raises(AuditChainTamperError):
         chain.verify_all()
-
-
-from pathlib import Path
 
 
 def test_persistent_audit_logger_and_verifier(tmp_path: Path) -> None:

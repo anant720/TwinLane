@@ -1,0 +1,73 @@
+version: "1.0"
+mode: "balanced"
+
+defaults:
+  max_envelope_size_bytes: 1048576
+  max_json_depth: 8
+  default_ttl_seconds: 60
+  max_clock_skew_seconds: 30
+
+extractors:
+  - id: "safe_task_id"
+    type: "regex"
+    pattern: "^task-[0-9a-zA-Z_-]{1,16}$"
+  - id: "email_allowlist"
+    type: "allowlist"
+    allowed_values:
+      - "security-team@example.test"
+      - "admin@example.test"
+      - "auditor@corp.local"
+
+intents:
+  report_result:
+    description: "Worker reports task outcome"
+    required_capability: "report_result"
+    allowed_senders: ["*"]
+    parameters:
+      task_id:
+        type: "string"
+        extractor: "safe_task_id"
+        provenance_required: "TRUSTED_OR_SANCTIONED"
+      status:
+        type: "string"
+        enum: ["SUCCESS", "FAILED", "PARTIAL"]
+        provenance_required: "TRUSTED"
+
+  send_email:
+    description: "Send email notification to approved recipients"
+    required_capability: "send_email"
+    allowed_senders: ["*"]
+    parameters:
+      recipient:
+        type: "string"
+        extractor: "email_allowlist"
+        allowlist:
+          - "security-team@example.test"
+          - "admin@example.test"
+          - "auditor@corp.local"
+        provenance_required: "TRUSTED_OR_SANCTIONED"
+      subject:
+        type: "string"
+        max_length: 120
+        pattern: "^[a-zA-Z0-9 _\\-:\\[\\]]+$"
+        provenance_required: "TRUSTED"
+
+  read_file:
+    description: "Read sandboxed file"
+    required_capability: "read_file"
+    allowed_senders: ["*"]
+    parameters:
+      path:
+        type: "string"
+        pattern: "^sandbox/[a-zA-Z0-9_.-]+$"
+        provenance_required: "TRUSTED"
+
+  fetch_url:
+    description: "Fetch web resource fixture"
+    required_capability: "fetch_url"
+    allowed_senders: ["*"]
+    parameters:
+      url:
+        type: "string"
+        pattern: "^https?://[a-zA-Z0-9_.-]+(:[0-9]+)?/.*$"
+        provenance_required: "TRUSTED"

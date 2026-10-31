@@ -1,6 +1,7 @@
 """Unit tests for DataItem and manifest hashing."""
 
 import pytest
+
 from twinlane.protocol.data import DataItem, compute_content_hash
 from twinlane.protocol.provenance import OriginType, Provenance
 

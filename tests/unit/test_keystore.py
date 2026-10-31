@@ -1,6 +1,7 @@
 """Unit tests for KeyStore persistence."""
 
 from pathlib import Path
+
 from twinlane.crypto.keys import generate_keypair
 from twinlane.crypto.keystore import KeyStore
 
