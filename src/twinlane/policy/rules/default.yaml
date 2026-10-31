@@ -71,3 +71,4 @@ intents:
         type: "string"
         pattern: "^https?://[a-zA-Z0-9_.-]+(:[0-9]+)?/.*$"
         provenance_required: "TRUSTED"
+
