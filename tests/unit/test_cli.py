@@ -1,5 +1,7 @@
 """Unit tests for TwinLane CLI commands."""
 
+from pathlib import Path
+
 from click.testing import CliRunner
 
 from twinlane.cli import main
@@ -24,12 +26,13 @@ def test_cli_help() -> None:
     assert "verify-audit" in result.output
 
 
-def test_cli_keygen_command() -> None:
+def test_cli_keygen_command(tmp_path: Path) -> None:
     """Verify keygen command invocation."""
     runner = CliRunner()
-    result = runner.invoke(main, ["keygen", "--name", "agent-test"])
+    key_dir = str(tmp_path / "keys")
+    result = runner.invoke(main, ["keygen", "--name", "agent-test", "--out-dir", key_dir])
     assert result.exit_code == 0
-    assert "Generating Ed25519 keypair for 'agent-test'" in result.output
+    assert "Generated Ed25519 keypair for 'agent-test'" in result.output
 
 
 def test_cli_bench_command() -> None:
@@ -48,9 +51,15 @@ def test_cli_run_demo_command() -> None:
     assert "Starting TwinLane demo server on http://localhost:9000" in result.output
 
 
-def test_cli_verify_audit_command() -> None:
+def test_cli_verify_audit_command(tmp_path: Path) -> None:
     """Verify verify-audit command invocation."""
+    from twinlane.audit.log import AuditLogger
+
+    log_file = tmp_path / "valid_audit.jsonl"
+    logger = AuditLogger(log_file)
+    logger.log(msg_id="m1", session_id="s1", sender="a", intent="ping", decision="ALLOW")
+
     runner = CliRunner()
-    result = runner.invoke(main, ["verify-audit", "--log", "audit.jsonl"])
+    result = runner.invoke(main, ["verify-audit", "--log", str(log_file)])
     assert result.exit_code == 0
-    assert "Verifying audit log integrity: 'audit.jsonl'" in result.output
+    assert "PASS: Audit log verified" in result.output

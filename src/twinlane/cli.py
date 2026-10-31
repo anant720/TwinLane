@@ -1,6 +1,12 @@
 """TwinLane Command Line Interface."""
 
+import sys
+from pathlib import Path
+
 import click
+
+from twinlane.audit.verify import verify_audit_log_file
+from twinlane.crypto.keystore import KeyStore
 
 
 @click.group()
@@ -15,7 +21,11 @@ def main() -> None:
 @click.option("--out-dir", default=".twinlane_keys", help="Output directory for generated keys")
 def keygen(name: str, out_dir: str) -> None:
     """Generate a new Ed25519 signing keypair for an agent."""
-    click.echo(f"Generating Ed25519 keypair for '{name}' into '{out_dir}'...")
+    keystore = KeyStore(key_dir=Path(out_dir))
+    keypair = keystore.get_or_create(name)
+    click.echo(f"Generated Ed25519 keypair for '{name}':")
+    click.echo(f"  Fingerprint: {keypair.fingerprint}")
+    click.echo(f"  Key directory: {Path(out_dir).resolve()}")
 
 
 @main.command()
@@ -38,6 +48,14 @@ def run_demo(port: int) -> None:
 def verify_audit(log: str) -> None:
     """Verify cryptographic hash chain integrity of an audit log."""
     click.echo(f"Verifying audit log integrity: '{log}'...")
+    res = verify_audit_log_file(log)
+    if res.is_valid:
+        click.echo(
+            f"PASS: Audit log verified ({res.record_count} records intact, hash chain unbroken)."
+        )
+    else:
+        click.echo(f"FAIL: Tampering or corruption detected: {res.error_message}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
