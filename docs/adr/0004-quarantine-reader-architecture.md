@@ -30,3 +30,4 @@ We chose **Selective Quarantine Reader with Zero Tools and Strict Output Schema 
 ## Consequences
 - **Positive**: Complete defense against tool hijacking from untrusted data; ~50% latency and cost savings compared to continuous dual-LLM execution for benign workflows; deterministic enforcement outside the model.
 - **Negative**: If an attacker attempts text-only semantic distortion (e.g., causing the reader to write an inaccurate summary), the summary will still be inaccurate. This is addressed by transparent provenance tagging and display to the human user, not automated blocking.
+

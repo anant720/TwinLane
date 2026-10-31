@@ -28,3 +28,4 @@ We chose a **pure declarative YAML policy schema parsed and validated in-process
 ## Consequences
 - **Positive**: Lightweight footprint; zero background daemon processes; sub-millisecond evaluation latency; fail-closed behavior on invalid configuration.
 - **Negative**: Complex multi-variable graph traversals or recursive role relationships are harder to express than in Datalog/Rego. However, for intent parameter gating and provenance checking, declarative YAML rules are completely sufficient.
+

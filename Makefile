@@ -40,3 +40,4 @@ docs:
 
 clean:
 	rm -rf build/ dist/ *.egg-info .pytest_cache .coverage htmlcov .mypy_cache .ruff_cache
+

@@ -55,3 +55,4 @@ jobs:
           print(f'Overall Line Coverage: {rate:.2f}%')
           assert rate >= 90.0, f'Coverage {rate:.2f}% is below 90% threshold'
           "
+

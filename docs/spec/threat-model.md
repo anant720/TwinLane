@@ -159,3 +159,4 @@ The TwinLane Gate enforces three non-negotiable operational invariants:
    $$\forall p \in \text{Params}, \quad \text{Constraint}(\mathcal{C}_{child}, p) \subseteq \text{Constraint}(\mathcal{C}_{parent}, p)$$
    $$\text{TTL}(\mathcal{C}_{child}) \le \text{TTL}(\mathcal{C}_{parent})$$
    No delegation can ever expand privilege.
+

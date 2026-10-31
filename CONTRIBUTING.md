@@ -40,3 +40,4 @@ Commit messages must follow the Conventional Commits specification:
 - `fix(gate)`: Bug fix in Gate pipeline or validation logic.
 - `test(security)`: Addition of new security or property tests.
 - `docs(spec)`: Updates to protocol specifications or research docs.
+

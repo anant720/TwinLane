@@ -29,3 +29,4 @@ We chose **JSON with RFC 8785 (JCS)** as the primary serialization and canonical
 ## Consequences
 - **Positive**: Seamless integration with existing agent ecosystems; human-readable wire traces; language-agnostic signature verification.
 - **Negative**: Slightly larger wire payloads compared to CBOR/Protobuf. For large binary artifacts, payloads must either be base64-encoded or transferred out-of-band via `content_ref` with SHA-256 hash validation in the manifest.
+

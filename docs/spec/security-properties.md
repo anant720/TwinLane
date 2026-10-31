@@ -115,3 +115,4 @@ $$h_{i-1} = \text{RecordHash}(\mathcal{R}_{i-1})$$
 | **P3: Forgery / Replay** | Replays and bit modifications rejected | `hypothesis` mutation fuzzer | 100% (0 accepted mutations) |
 | **P4: Confinement** | Rogue peer confined to token scope | `test_p4_confinement.py` | 100% (0 privilege escalations) |
 | **P5: Auditability** | Tamper-evident, non-repudiable audit chain | `test_p5_audit_chain.py` | 100% (0 undetectable changes) |
+

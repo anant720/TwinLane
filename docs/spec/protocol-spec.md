@@ -317,3 +317,4 @@ When an agent receives a TwinLane envelope, the **TwinLane Gate** executes the f
 3. **Observe Mode**:
    - Evaluation and benchmark mode.
    - Executes all Gate checks and logs decisions to the audit trail, but permits execution to continue for comparative ASR measurement.
+

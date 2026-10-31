@@ -63,3 +63,4 @@ id_ed25519*
 # Benchmark raw results (keep summaries in docs/report/results)
 bench/results/*.json
 !bench/results/summary_*.json
+

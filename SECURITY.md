@@ -19,3 +19,4 @@ If you discover a vulnerability or security bypass in the TwinLane protocol or r
    - Proposed fix or mitigation if available.
 
 We commit to acknowledging reports within 48 hours and providing a remediation timeline within 7 days.
+

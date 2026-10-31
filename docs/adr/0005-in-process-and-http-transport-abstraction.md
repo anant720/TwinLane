@@ -29,3 +29,4 @@ We chose a **pluggable Transport Abstraction Layer** with two concrete implement
 ## Consequences
 - **Positive**: Clean separation of protocol concerns from networking; instant local testing; production-ready HTTP transport.
 - **Negative**: Requires maintaining two transport classes, though both share a simple abstract base class (`Transport`).
+

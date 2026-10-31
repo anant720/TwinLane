@@ -14,3 +14,4 @@ services:
     volumes:
       - ../audit:/app/audit
     restart: unless-stopped
+

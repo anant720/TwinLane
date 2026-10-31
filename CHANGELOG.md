@@ -25,3 +25,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Phase 2 (Repository Scaffold & Tooling)**:
   - Root configuration (`pyproject.toml`, `Makefile`, `.gitignore`, `.pre-commit-config.yaml`, `.env.example`).
   - GitHub Actions CI workflow (`.github/workflows/ci.yml`).
+

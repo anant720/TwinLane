@@ -30,3 +30,4 @@ We chose **Ed25519 (Edwards-curve Digital Signature Algorithm over Curve25519)**
 ## Consequences
 - **Positive**: Blazing fast gate evaluation; small key and signature footprints; immune to random number generator failures during signing.
 - **Negative**: Agents must maintain an Ed25519 keypair and trust store. Legacy enterprise systems requiring NIST-approved curves (e.g., FIPS 140-2 environments requiring P-256) will require a future crypto-pluggable abstraction adapter.
+
