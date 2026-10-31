@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-gate:
+    name: Lint, Type Check & Security Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run Ruff Linter
+        run: |
+          ruff check src/ tests/
+
+      - name: Run Ruff Formatter Check
+        run: |
+          ruff format --check src/ tests/
+
+      - name: Run Mypy Strict
+        run: |
+          mypy --strict src/
+
+      - name: Run Pytest Suite with Coverage
+        run: |
+          pytest --cov=twinlane --cov-report=xml --cov-report=term-missing tests/
+
+      - name: Enforce 90% Line Coverage on Security Modules
+        run: |
+          python -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('coverage.xml')
+          root = tree.getroot()
+          rate = float(root.attrib['line-rate']) * 100
+          print(f'Overall Line Coverage: {rate:.2f}%')
+          assert rate >= 90.0, f'Coverage {rate:.2f}% is below 90% threshold'
+          "

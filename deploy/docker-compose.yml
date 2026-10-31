@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  twinlane-demo:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: twinlane-demo
+    ports:
+      - "8000:8000"
+    environment:
+      - TWINLANE_MODE=balanced
+      - TWINLANE_LLM_PROVIDER=mock
+    volumes:
+      - ../audit:/app/audit
+    restart: unless-stopped
