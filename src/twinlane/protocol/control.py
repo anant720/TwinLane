@@ -13,12 +13,8 @@ class ControlLane(BaseModel):
     """
 
     intent: str = Field(..., description="Intent identifier from agreed Intent Catalog")
-    params: dict[str, Any] = Field(
-        default_factory=dict, description="Typed parameters conforming to intent schema"
-    )
-    capability_token_id: str = Field(
-        ..., description="Reference ID of authorizing capability token"
-    )
+    params: dict[str, Any] = Field(default_factory=dict, description="Typed parameters conforming to intent schema")
+    capability_token_id: str = Field(..., description="Reference ID of authorizing capability token")
 
     model_config = {"extra": "forbid"}
 

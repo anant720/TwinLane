@@ -59,6 +59,12 @@ dmypy.json
 *.pem
 *.key
 id_ed25519*
+.twinlane_keys/
+
+# Temporary and backup files
+*.bak
+pytest-cache-files-*
+twinlane new uiu ux .md
 
 # Benchmark raw results (keep summaries in docs/report/results)
 bench/results/*.json

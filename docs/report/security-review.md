@@ -155,3 +155,4 @@ To adhere to our honest research positioning (as outlined in `AGENTS.md`), we do
 ## 7. Conclusion
 
 The TwinLane protocol establishes a mathematically verifiable, framework-agnostic boundary against indirect prompt injection in multi-agent systems. By enforcing two-lane separation, cryptographic wire identities, monotonic capability attenuation, and deterministic Gate authorization, TwinLane eliminates the fundamental vulnerability of in-band LLM instruction channels without sacrificing system utility or introducing runtime overhead.
+
